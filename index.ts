@@ -13,15 +13,15 @@ app.use(cors());
 app.use("/crawler", Crawler);
 
 app.get("/", async (req: Request, res: Response): Promise<Response> => {
-    return res.status(200).send({
-        message: "後端",
-    });
+  return res.status(200).send({
+    message: "後端",
+  });
 });
 
 try {
-    app.listen(port, (): void => {
-        console.log(`Connected successfully on port ${port}`);
-    });
+  app.listen(port, (): void => {
+    console.log(`Connected successfully on port ${port}`);
+  });
 } catch (error) {
-    console.error(`Error occured: ${error}`);
+  console.error(`Error occured: ${error}`);
 }

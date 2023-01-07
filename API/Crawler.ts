@@ -79,44 +79,6 @@ router.get("/exchange", async (req, res) => {
 });
 //#endregion
 
-//#region IP-API
-interface IP_Response {
-  status: string;
-  country: string;
-  countryCode: string;
-  region: string;
-  regionName: string;
-  city: string;
-  zip: string;
-  lat: string;
-  lon: string;
-  timezone: string;
-  isp: string;
-  org: string;
-  as: string;
-  query: string;
-}
-// 取得本機IP、地理位置等地區資訊
-router.get("/ip", async (req, res) => {
-  const queryResult = await axios.post("http://ip-api.com/json/");
-  const result = queryResult.data as IP_Response;
-  const response: Return_Interface = {
-    state: 200,
-    message: result.status !== "success" ? "獲取資料失敗" : "",
-    data: {
-      IP: result.query,
-      Country: result.country,
-      TimeZone: result.timezone,
-      Position: {
-        LAT: result.lat,
-        LON: result.lon,
-      },
-    },
-  };
-  res.send(response);
-});
-//#endregion
-
 router.get("/", async (req, res) => {
   res.send("");
 });

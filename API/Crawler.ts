@@ -18,17 +18,16 @@ let result: Return_Interface = {
     message: "",
     update_time: moment().format("YYYY-MM-DD HH:mm:ss"),
 };
-router.get("/exchange", async (req, res) => {
+// 台灣銀行: Bank of Taiwan
+router.get("/exchange/bot", async (req, res) => {
     //#region 為避免短時間內執行太多次爬蟲遭到阻擋IP，以每五分鐘進行一次資料更新
     const current = moment().format("YYYY-MM-DD HH:mm:ss");
     const diff = moment(current).diff(time, "minute");
-    console.log(diff);
-
     const reload = diff >= 5 || result.data.length <= 0;
-    console.log(reload);
 
     if (reload) {
         try {
+            const updateTime = moment().format("YYYY-MM-DD HH:mm:ss");
             const exchange = await axios
                 .get("https://rate.bot.com.tw/xrt?Lang=zh-TW")
                 //#region 轉資料
@@ -86,10 +85,11 @@ router.get("/exchange", async (req, res) => {
             //#endregion
             result.data = exchange;
             result.state = 200;
+            result.update_time = updateTime;
             // 存進buffer裡
             buffer.data = exchange;
             buffer.state = 200;
-            buffer.update_time = moment().format("YYYY-MM-DD HH:mm:ss");
+            buffer.update_time = updateTime;
         } catch (err: any) {
             result.data = [];
             result.message = err.message;
@@ -107,6 +107,29 @@ router.get("/exchange", async (req, res) => {
         message: result.message,
         update_time: result.update_time,
     });
+});
+// 華南銀行
+interface HuaNan_Response {
+    CUR_ID: string;
+    DATE: string;
+    DESC_CHI: string;
+    DESC_ENG: string;
+    SELL_AMT_BOARD: string;
+    BUY_AMT_BOARD: string;
+    TIME: string;
+    TYPE: string;
+}
+router.get("/exchange/hncb", async (req, res) => {
+    try {
+        const { data } = await axios.get(
+            "https://www.hncb.com.tw/hncb/rest/exRate/all"
+        );
+
+        res.status(200).send(data as HuaNan_Response[]);
+    } catch (err) {
+        // console.error(err);
+        res.status(500).send([]);
+    }
 });
 
 let time = moment().format("YYYY-MM-DD HH:mm:ss");
